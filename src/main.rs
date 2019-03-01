@@ -6,13 +6,13 @@ use score::ScoreService;
 
 fn main() {
     let hello = path!(String)
-        .map(|name| {
+        .map(|code| {
             let config = match ScoreService::new() {
                 Some(c) => c,
                 None => return String::from("Error"),
             };
 
-            config.scores()
+            config.scores(code)
         });
 
     warp::serve(hello)
