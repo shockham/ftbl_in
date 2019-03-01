@@ -57,14 +57,17 @@ impl ScoreService {
             let score_string = {
                 if !home_team_score.is_null() {
                     format!(
-                        "{} {} - {} {}\n",
-                        home_team_name, home_team_score, away_team_score, away_team_name
+                        "{} [{} - {}] {}\n",
+                        home_team_name,
+                        Style::new().bold().paint(home_team_score.as_str().unwrap()),
+                        Style::new().bold().paint(away_team_score.as_str().unwrap()),
+                        away_team_name
                     )
                 } else {
                     let match_status = &game["status"].as_str().unwrap();
                     format!(
-                        "{} {} {}\n",
-                        home_team_name, match_status, away_team_name
+                        "{} [{}] {}\n",
+                        home_team_name, Style::new().bold().paint(*match_status), away_team_name
                     )
                 }
             };
