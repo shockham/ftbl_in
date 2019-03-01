@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::Read;
 use toml;
 use chrono::prelude::*;
+use ansi_term::Style;
 
 const BASE_URL: &'static str = "https://api.football-data.org/v2/competitions/";
 
@@ -53,12 +54,26 @@ impl ScoreService {
             let home_team_score = &game["score"]["fullTime"]["homeTeam"];
             let away_team_score = &game["score"]["fullTime"]["awayTeam"];
 
-            let score_string = format!(
-                "{} {} - {} {}\n",
-                home_team_name, home_team_score, away_team_score, away_team_name
-            );
+            let score_string = {
+                if !home_team_score.is_null() {
+                    format!(
+                        "{} {} - {} {}\n",
+                        home_team_name, home_team_score, away_team_score, away_team_name
+                    )
+                } else {
+                    let match_status = &game["status"].as_str().unwrap();
+                    format!(
+                        "{} {} {}\n",
+                        home_team_name, match_status, away_team_name
+                    )
+                }
+            };
 
             all_scores.push_str(score_string.as_str());
+        }
+
+        if all_scores.is_empty() {
+            all_scores = String::from("No matches today");
         }
 
         all_scores
