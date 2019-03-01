@@ -3,17 +3,18 @@ use serde_derive::Deserialize;
 use std::fs::File;
 use std::io::Read;
 use toml;
+use warp::{Filter, path};
 
 
 const BASE_URL: &'static str = "https://api.football-data.org/v2/competitions/";
 
 #[derive(Debug, Deserialize)]
-struct Config {
+struct ScoreService {
     api_key: String,
 }
 
-impl Config {
-    fn new() -> Option<Config> {
+impl ScoreService {
+    fn new() -> Option<ScoreService> {
         let toml_str = match File::open("./ftbl.toml") {
             Ok(mut f) => {
                 let mut toml_str = String::new();
@@ -21,7 +22,7 @@ impl Config {
                 toml_str
             }
             Err(e) => {
-                error!("Config: {}", e);
+                error!("ScoreService: {}", e);
                 return None;
             }
         };
@@ -60,17 +61,21 @@ impl Config {
             all_scores.push_str(score_string.as_str());
         }
 
-        print!("{}", all_scores);
-
         all_scores
     }
 }
 
 fn main() {
-    let config = match Config::new() {
-        Some(c) => c,
-        None => return,
-    };
+    let hello = path!("hello" / String)
+        .map(|name| {
+            let config = match ScoreService::new() {
+                Some(c) => c,
+                None => return String::from("Error"),
+            };
 
-    config.scores();
+            config.scores()
+        });
+
+    warp::serve(hello)
+        .run(([127, 0, 0, 1], 3030));
 }
