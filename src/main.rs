@@ -66,7 +66,7 @@ impl ScoreService {
 }
 
 fn main() {
-    let hello = path!("hello" / String)
+    let hello = path!(String)
         .map(|name| {
             let config = match ScoreService::new() {
                 Some(c) => c,
