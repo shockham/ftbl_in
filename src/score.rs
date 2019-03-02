@@ -61,7 +61,11 @@ impl ScoreService {
         let mut all_scores = String::new();
 
         let competition_name = json["competition"]["name"].as_str()?;
-        all_scores.push_str(format!("{}:\n", competition_name).as_str());
+        let styled_competition_name = Style::new()
+            .on(Colour::Fixed(8))
+            .bold()
+            .paint(format!("{}:", competition_name));
+        all_scores.push_str(format!("\n{}\n", styled_competition_name).as_str());
 
 
         for game in json["matches"].as_array()? {
@@ -115,6 +119,8 @@ impl ScoreService {
         if all_scores.is_empty() {
             return None;
         }
+
+        all_scores.push_str("\n");
 
         Some(all_scores)
     }
