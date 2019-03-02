@@ -12,7 +12,10 @@ fn main() {
                 None => return String::from("Error"),
             };
 
-            config.scores(code)
+            match config.scores(code) {
+                Some(s) => s,
+                None => String::from("No matches found today."),
+            }
         });
 
     warp::serve(hello)

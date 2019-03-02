@@ -43,14 +43,20 @@ impl ScoreService {
         Ok(resp)
     }
 
-    pub fn scores(&self, comp_code:String) -> String {
-        let json = self.get_scores_json(comp_code).unwrap();
+    pub fn scores(&self, comp_code:String) -> Option<String> {
+        let json = match self.get_scores_json(comp_code) {
+            Ok(j) => j,
+            Err(e) => {
+                error!("ScoreService: {}", e);
+                return None;
+            },
+        };
 
         let mut all_scores = String::new();
 
-        for game in json["matches"].as_array().unwrap() {
-            let home_team_name = &game["homeTeam"]["name"].as_str().unwrap();
-            let away_team_name = &game["awayTeam"]["name"].as_str().unwrap();
+        for game in json["matches"].as_array()? {
+            let home_team_name = &game["homeTeam"]["name"].as_str()?;
+            let away_team_name = &game["awayTeam"]["name"].as_str()?;
             let home_team_score = &game["score"]["fullTime"]["homeTeam"];
             let away_team_score = &game["score"]["fullTime"]["awayTeam"];
 
@@ -64,7 +70,7 @@ impl ScoreService {
                         away_team_name
                     )
                 } else {
-                    let match_status = &game["status"].as_str().unwrap();
+                    let match_status = &game["status"].as_str()?;
                     format!(
                         "{} [{}] {}\n",
                         home_team_name, Style::new().bold().paint(*match_status), away_team_name
@@ -76,9 +82,9 @@ impl ScoreService {
         }
 
         if all_scores.is_empty() {
-            all_scores = String::from("No matches today");
+            return None;
         }
 
-        all_scores
+        Some(all_scores)
     }
 }
