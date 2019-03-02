@@ -27,7 +27,13 @@ impl ScoreService {
             }
         };
 
-        Some(toml::from_str(toml_str.as_str()).unwrap())
+        match toml::from_str(toml_str.as_str()) {
+            Ok(t) => Some(t),
+            Err(e) => {
+                error!("ScoreService: {}", e);
+                return None;
+            }
+        }
     }
 
     fn get_scores_json(&self, comp_code:String) -> Result<serde_json::Value, Box<std::error::Error>> {
