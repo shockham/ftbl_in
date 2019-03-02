@@ -1,10 +1,10 @@
+use ansi_term::{Colour, Style};
+use chrono::prelude::*;
 use log::error;
 use serde_derive::Deserialize;
 use std::fs::File;
 use std::io::Read;
 use toml;
-use chrono::prelude::*;
-use ansi_term::{Style, Colour};
 
 const BASE_URL: &'static str = "https://api.football-data.org/v2/competitions/";
 
@@ -36,7 +36,10 @@ impl ScoreService {
         }
     }
 
-    fn get_scores_json(&self, comp_code:String) -> Result<serde_json::Value, Box<std::error::Error>> {
+    fn get_scores_json(
+        &self,
+        comp_code: String,
+    ) -> Result<serde_json::Value, Box<std::error::Error>> {
         let comp_url = format!("{}{}/matches", BASE_URL, comp_code);
         let todays_date = Utc::today().format("%Y-%m-%d").to_string();
         let client = reqwest::Client::new();
@@ -49,13 +52,13 @@ impl ScoreService {
         Ok(resp)
     }
 
-    pub fn scores(&self, comp_code:String) -> Option<String> {
+    pub fn scores(&self, comp_code: String) -> Option<String> {
         let json = match self.get_scores_json(comp_code) {
             Ok(j) => j,
             Err(e) => {
                 error!("ScoreService: {}", e);
                 return None;
-            },
+            }
         };
 
         let mut all_scores = String::new();
@@ -66,7 +69,6 @@ impl ScoreService {
             .bold()
             .paint(format!("{}:", competition_name));
         all_scores.push_str(format!("\n{}\n", styled_competition_name).as_str());
-
 
         for game in json["matches"].as_array()? {
             let home_team_name = &game["homeTeam"]["name"].as_str()?;
@@ -84,14 +86,11 @@ impl ScoreService {
 
                     format!(
                         "{} {} {}\n",
-                        home_team_name,
-                        styled_match_score,
-                        away_team_name
+                        home_team_name, styled_match_score, away_team_name
                     )
                 } else {
-
                     let match_time = &game["utcDate"].as_str()?;
-                    let match_status = match  DateTime::parse_from_rfc3339(match_time) {
+                    let match_status = match DateTime::parse_from_rfc3339(match_time) {
                         Ok(time) => time.format("%H:%M").to_string(),
                         Err(e) => {
                             error!("ScoreService: {}", e);
