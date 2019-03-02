@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::Read;
 use toml;
 use chrono::prelude::*;
-use ansi_term::Style;
+use ansi_term::{Style, Colour};
 
 const BASE_URL: &'static str = "https://api.football-data.org/v2/competitions/";
 
@@ -60,6 +60,10 @@ impl ScoreService {
 
         let mut all_scores = String::new();
 
+        let competition_name = json["competition"]["name"].as_str()?;
+        all_scores.push_str(format!("{}:\n", competition_name).as_str());
+
+
         for game in json["matches"].as_array()? {
             let home_team_name = &game["homeTeam"]["name"].as_str()?;
             let away_team_name = &game["awayTeam"]["name"].as_str()?;
@@ -68,11 +72,16 @@ impl ScoreService {
 
             let score_string = {
                 if !home_team_score.is_null() {
+                    let styled_match_score = Style::new()
+                        .fg(Colour::Black)
+                        .on(Colour::White)
+                        .bold()
+                        .paint(format!(" {} - {} ", home_team_score, away_team_score));
+
                     format!(
-                        "{} [{} - {}] {}\n",
+                        "{} {} {}\n",
                         home_team_name,
-                        Style::new().bold().paint(format!("{}", home_team_score)),
-                        Style::new().bold().paint(format!("{}", away_team_score)),
+                        styled_match_score,
                         away_team_name
                     )
                 } else {
@@ -87,9 +96,15 @@ impl ScoreService {
                         }
                     };
 
+                    let styled_match_status = Style::new()
+                        .fg(Colour::Black)
+                        .on(Colour::White)
+                        .bold()
+                        .paint(format!(" {} ", match_status));
+
                     format!(
-                        "{} [{}] {}\n",
-                        home_team_name, Style::new().bold().paint(match_status), away_team_name
+                        "{} {} {}\n",
+                        home_team_name, styled_match_status, away_team_name
                     )
                 }
             };
