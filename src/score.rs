@@ -59,8 +59,8 @@ impl ScoreService {
                     format!(
                         "{} [{} - {}] {}\n",
                         home_team_name,
-                        Style::new().bold().paint(home_team_score.as_str().unwrap()),
-                        Style::new().bold().paint(away_team_score.as_str().unwrap()),
+                        Style::new().bold().paint(format!("{}", home_team_score)),
+                        Style::new().bold().paint(format!("{}", away_team_score)),
                         away_team_name
                     )
                 } else {
