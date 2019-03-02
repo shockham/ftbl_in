@@ -18,6 +18,12 @@ fn main() {
             }
         });
 
+    let addr = if cfg!(debug_assertions) {
+        ([127, 0, 0, 1], 3030)
+    } else {
+        ([0, 0, 0, 0], 80)
+    };
+
     warp::serve(hello)
-        .run(([127, 0, 0, 1], 3030));
+        .run(addr);
 }
