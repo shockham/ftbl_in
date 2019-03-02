@@ -5,7 +5,19 @@ mod score;
 use score::ScoreService;
 
 fn main() {
-    let hello = path!(String).map(|code| {
+    let help = warp::path::end().map(|| {
+        let config = match ScoreService::new() {
+            Some(c) => c,
+            None => return String::from("Error"),
+        };
+
+        match config.competitions() {
+            Some(s) => s,
+            None => String::from("No matches found today."),
+        }
+    });
+
+    let comps = path!(String).map(|code| {
         let config = match ScoreService::new() {
             Some(c) => c,
             None => return String::from("Error"),
@@ -23,5 +35,5 @@ fn main() {
         ([0, 0, 0, 0], 80)
     };
 
-    warp::serve(hello).run(addr);
+    warp::serve(help.or(comps)).run(addr);
 }

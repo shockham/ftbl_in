@@ -123,4 +123,33 @@ impl ScoreService {
 
         Some(all_scores)
     }
+
+    fn get_competitions_json(&self) -> Result<serde_json::Value, Box<std::error::Error>> {
+        let client = reqwest::Client::new();
+        let resp = client.get(BASE_URL).send()?.json()?;
+        Ok(resp)
+    }
+
+    pub fn competitions(&self) -> Option<String> {
+        let json = match self.get_competitions_json() {
+            Ok(j) => j,
+            Err(e) => {
+                error!("ScoreService: {}", e);
+                return None;
+            }
+        };
+
+        let mut all_competitions = String::from("\nUsage:\n curl ftbl.in/<competition>\n\nCompetitions:\n");
+
+        for competition in json["competitions"].as_array()? {
+            let competition_code = &competition["code"];
+
+            if !competition_code.is_null() {
+                let competition_name = &competition["name"].as_str()?;
+                all_competitions.push_str(format!("{} : {}\n", competition_code.as_str()?, competition_name).as_str());
+            }
+        }
+
+        Some(all_competitions)
+    }
 }
