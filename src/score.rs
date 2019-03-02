@@ -147,11 +147,18 @@ impl ScoreService {
 
             if !competition_code.is_null() {
                 let competition_name = &competition["name"].as_str()?;
+                let styled_competition_code = Style::new()
+                    .fg(Colour::Black)
+                    .on(Colour::White)
+                    .bold()
+                    .paint(competition_code.as_str()?);
                 all_competitions.push_str(
-                    format!("{} : {}\n", competition_code.as_str()?, competition_name).as_str(),
+                    format!("   {}: {}\n", styled_competition_code, competition_name).as_str(),
                 );
             }
         }
+
+        all_competitions.push_str("\n");
 
         Some(all_competitions)
     }
