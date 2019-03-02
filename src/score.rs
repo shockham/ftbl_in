@@ -76,10 +76,20 @@ impl ScoreService {
                         away_team_name
                     )
                 } else {
-                    let match_status = &game["status"].as_str()?;
+
+                    let match_time = &game["utcDate"].as_str()?;
+                    let match_status = match  DateTime::parse_from_rfc3339(match_time) {
+                        Ok(time) => time.format("%H:%M").to_string(),
+                        Err(e) => {
+                            error!("ScoreService: {}", e);
+                            let status_str = &game["status"].as_str()?;
+                            String::from(*status_str)
+                        }
+                    };
+
                     format!(
                         "{} [{}] {}\n",
-                        home_team_name, Style::new().bold().paint(*match_status), away_team_name
+                        home_team_name, Style::new().bold().paint(match_status), away_team_name
                     )
                 }
             };
