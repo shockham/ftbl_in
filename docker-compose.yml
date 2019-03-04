@@ -1,0 +1,8 @@
+version: '3'
+services:
+  ftbl:
+    build: .
+    ports:
+      - 80:3030
+
+    command: sh -c "ftbl_in"
