@@ -23,4 +23,5 @@ RUN cp target/$BUILD_TARGET/release/ftbl_in /usr/local/bin/ftbl_in
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /app/
+ADD ftbl.toml /app/ftbl.toml
 COPY --from=builder /usr/local/bin/ftbl_in /usr/local/bin
