@@ -4,5 +4,3 @@ services:
     build: .
     ports:
       - 3030:80
-
-    command: sh -c "ftbl_in"

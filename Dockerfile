@@ -25,3 +25,4 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /app/
 ADD ftbl.toml /app/ftbl.toml
 COPY --from=builder /usr/local/bin/ftbl_in /usr/local/bin
+ENTRYPOINT ftbl_in
