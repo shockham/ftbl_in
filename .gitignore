@@ -2,3 +2,4 @@
 **/*.rs.bk
 TODO.md
 ftbl.toml
+deploy.sh
