@@ -2,11 +2,10 @@ use ansi_term::{Colour, Style};
 use chrono::prelude::*;
 use log::error;
 use serde_derive::Deserialize;
-use std::fs::File;
-use std::io::Read;
 use toml;
 
 const BASE_URL: &'static str = "https://api.football-data.org/v2/competitions/";
+const CONFIG: &'static str = include_str!("../ftbl.toml");
 
 #[derive(Debug, Deserialize)]
 pub struct ScoreService {
@@ -15,19 +14,7 @@ pub struct ScoreService {
 
 impl ScoreService {
     pub fn new() -> Option<ScoreService> {
-        let toml_str = match File::open("./ftbl.toml") {
-            Ok(mut f) => {
-                let mut toml_str = String::new();
-                let _ = f.read_to_string(&mut toml_str);
-                toml_str
-            }
-            Err(e) => {
-                error!("ScoreService: {}", e);
-                return None;
-            }
-        };
-
-        match toml::from_str(toml_str.as_str()) {
+        match toml::from_str(CONFIG) {
             Ok(t) => Some(t),
             Err(e) => {
                 error!("ScoreService: {}", e);
