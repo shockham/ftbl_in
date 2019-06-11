@@ -4,8 +4,8 @@ use log::error;
 use serde_derive::Deserialize;
 use toml;
 
-const BASE_URL: &'static str = "https://api.football-data.org/v2/competitions/";
-const CONFIG: &'static str = include_str!("../ftbl.toml");
+const BASE_URL: &str = "https://api.football-data.org/v2/competitions/";
+const CONFIG: &str = include_str!("../ftbl.toml");
 
 #[derive(Debug, Deserialize)]
 pub struct ScoreService {
@@ -18,7 +18,7 @@ impl ScoreService {
             Ok(t) => Some(t),
             Err(e) => {
                 error!("ScoreService: {}", e);
-                return None;
+                None
             }
         }
     }
