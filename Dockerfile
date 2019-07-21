@@ -21,7 +21,7 @@ RUN touch src/main.rs && cargo build --target=$BUILD_TARGET --release
 RUN cp target/$BUILD_TARGET/release/ftbl_in /usr/local/bin/ftbl_in
 
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-COPY --from=builder /usr/local/bin/ftbl_in /usr/local/bin
-ENTRYPOINT ftbl_in
+FROM scratch
+COPY --from=builder /etc/ssl /etc/ssl
+COPY --from=builder /usr/local/bin/ftbl_in /
+CMD ["/ftbl_in"]
