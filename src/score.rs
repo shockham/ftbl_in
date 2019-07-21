@@ -1,5 +1,6 @@
 use ansi_term::{Colour, Style};
 use chrono::prelude::*;
+use futures::Future;
 use log::error;
 use serde_derive::Deserialize;
 use toml;
@@ -8,46 +9,47 @@ const BASE_URL: &str = "https://api.football-data.org/v2/competitions/";
 const CONFIG: &str = include_str!("../ftbl.toml");
 
 #[derive(Debug, Deserialize)]
-pub struct ScoreService {
+pub struct ScoreRepo {
     api_key: String,
 }
 
-impl ScoreService {
-    pub fn new() -> Option<ScoreService> {
+impl ScoreRepo {
+    pub fn new() -> Option<ScoreRepo> {
         match toml::from_str(CONFIG) {
             Ok(t) => Some(t),
             Err(e) => {
-                error!("ScoreService: {}", e);
+                error!("ScoreRepo: {}", e);
                 None
             }
         }
     }
 
-    fn get_scores_json(
+    pub fn get_scores(
         &self,
         comp_code: String,
-    ) -> Result<serde_json::Value, Box<std::error::Error>> {
+    ) -> impl Future<Item = reqwest::r#async::Response, Error = reqwest::Error> {
         let comp_url = format!("{}{}/matches", BASE_URL, comp_code);
         let todays_date = Utc::today().format("%Y-%m-%d").to_string();
-        let client = reqwest::Client::new();
-        let resp = client
+        let client = reqwest::r#async::Client::new();
+
+        client
             .get(comp_url.as_str())
             .header("X-Auth-Token", self.api_key.clone())
             .query(&[("dateFrom", todays_date.clone()), ("dateTo", todays_date)])
-            .send()?
-            .json()?;
-        Ok(resp)
+            .send()
     }
 
-    pub fn scores(&self, comp_code: String) -> Option<String> {
-        let json = match self.get_scores_json(comp_code) {
-            Ok(j) => j,
-            Err(e) => {
-                error!("ScoreService: {}", e);
-                return None;
-            }
-        };
+    pub fn get_competitions(
+    ) -> impl Future<Item = reqwest::r#async::Response, Error = reqwest::Error> {
+        let client = reqwest::r#async::Client::new();
+        client.get(BASE_URL).send()
+    }
+}
 
+pub struct ScoreView;
+
+impl ScoreView {
+    pub fn scores(json: serde_json::Value) -> Option<String> {
         let mut all_scores = String::new();
 
         let competition_name = json["competition"]["name"].as_str()?;
@@ -111,21 +113,7 @@ impl ScoreService {
         Some(all_scores)
     }
 
-    fn get_competitions_json(&self) -> Result<serde_json::Value, Box<std::error::Error>> {
-        let client = reqwest::Client::new();
-        let resp = client.get(BASE_URL).send()?.json()?;
-        Ok(resp)
-    }
-
-    pub fn competitions(&self) -> Option<String> {
-        let json = match self.get_competitions_json() {
-            Ok(j) => j,
-            Err(e) => {
-                error!("ScoreService: {}", e);
-                return None;
-            }
-        };
-
+    pub fn competitions(json: serde_json::Value) -> Option<String> {
         let mut all_competitions =
             String::from("\nUsage:\n curl ftbl.in/<competition>\n\nCompetitions:\n");
 
