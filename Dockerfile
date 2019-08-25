@@ -1,9 +1,8 @@
 ARG BUILD_ARCH=x86_64
-FROM getsentry/rust-musl-cross:$BUILD_ARCH-musl AS builder
+FROM ekidd/rust-musl-builder:latest AS builder
 
 ARG BUILD_ARCH
 ENV BUILD_TARGET=$BUILD_ARCH-unknown-linux-musl
-WORKDIR /app/
 
 # Build only dependencies to speed up subsequent builds
 ADD Cargo.toml Cargo.lock ./
@@ -15,10 +14,10 @@ RUN mkdir -p src \
 ADD src src/
 ADD ftbl.toml .
 
-RUN touch src/main.rs && cargo build --target=$BUILD_TARGET --release
+RUN sudo touch src/main.rs && cargo build --target=$BUILD_TARGET --release
 
 # Copy the compiled binary to a target-independent location so it can be picked up later
-RUN cp target/$BUILD_TARGET/release/ftbl_in /usr/local/bin/ftbl_in
+RUN sudo cp target/$BUILD_TARGET/release/ftbl_in /usr/local/bin/ftbl_in
 
 
 FROM scratch
