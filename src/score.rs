@@ -40,9 +40,13 @@ impl ScoreRepo {
     }
 
     pub fn get_competitions(
+        &self
     ) -> impl Future<Item = reqwest::r#async::Response, Error = reqwest::Error> {
         let client = reqwest::r#async::Client::new();
-        client.get(BASE_URL).send()
+        client
+            .get(BASE_URL)
+            .header("X-Auth-Token", self.api_key.clone())
+            .send()
     }
 }
 

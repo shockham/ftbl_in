@@ -11,7 +11,12 @@ fn main() {
 
     let help = path::end()
         .and_then(|| {
-            ScoreRepo::get_competitions()
+            let config = match ScoreRepo::new() {
+                Some(c) => c,
+                None => panic!("Error"),
+            };
+
+            config.get_competitions()
                 .map(|resp| resp)
                 .map_err(|err| warp::reject::custom(err))
         })
