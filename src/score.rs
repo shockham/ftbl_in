@@ -28,7 +28,7 @@ impl ScoreRepo {
         &self,
         comp_code: String,
     ) -> impl Future<Item = reqwest::r#async::Response, Error = reqwest::Error> {
-        let comp_url = format!("{}{}/matches", BASE_URL, comp_code);
+        let comp_url = format!("{}{}/matches", BASE_URL, comp_code.to_uppercase());
         let todays_date = Utc::today().format("%Y-%m-%d").to_string();
         let client = reqwest::r#async::Client::new();
 
