@@ -18,7 +18,7 @@ RUN sudo touch src/main.rs && cargo build --target=$BUILD_TARGET --release
 
 # Copy the compiled binary to a target-independent location so it can be picked up later
 RUN sudo cp target/$BUILD_TARGET/release/ftbl_in /usr/local/bin/ftbl_in \
-    && strip /usr/local/bin/ftbl_in
+    && sudo strip /usr/local/bin/ftbl_in
 
 
 FROM scratch
